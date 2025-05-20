@@ -1,45 +1,107 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(InputHandler))]
 [RequireComponent(typeof(PlayerAnimationHandler))]
+[RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(StatManager))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private LayerMask groundLayer;
-    private InputHandler inputHandler;
-    private PlayerAnimationHandler playerAnimationHandler;
-    private Rigidbody rigid;
-    private bool isGrounded;
+
+    public InputHandler   InputHandler   { get; private set; }
+    public PlayerMovement PlayerMovement { get; private set; }
+    public StatManager    StatManager    { get; private set; }
+    public Animator       Animator       { get; private set; }
+
+    public bool IsGrounded { get; private set; }
 
     private IObjectExecutable lastExecutable;
     private IPlatform currentPlatform;
     private Vector3 lastPlayformPos;
 
+    private StateMachine<PlayerController> stateMachine;
+    private IState<PlayerController>[] states;
+    private PlayerState currentState;
+
+
+    //임시
+    public Rigidbody Rigidbody     { get; private set; }
+    public float     RotationSpeed => rotationSpeed;
+
     private void Awake()
     {
-        inputHandler = GetComponent<InputHandler>();
-        rigid = GetComponent<Rigidbody>();
-        playerAnimationHandler = GetComponent<PlayerAnimationHandler>();
+        InputHandler = GetComponent<InputHandler>();
+        Rigidbody = GetComponent<Rigidbody>();
+        PlayerMovement = GetComponent<PlayerMovement>();
+        Animator = GetComponent<Animator>();
+        StatManager = GetComponent<StatManager>();
     }
 
+    private void Start()
+    {
+        SetupState();
+    }
+
+    private void SetupState()
+    {
+        states = new IState<PlayerController>[Enum.GetValues(typeof(PlayerState)).Length];
+        for (int i = 0; i < states.Length; i++)
+        {
+            states[i] = GetState((PlayerState)i);
+        }
+
+        stateMachine = new StateMachine<PlayerController>();
+        stateMachine.Setup(this, states[(int)PlayerState.Idle]);
+    }
+
+    private IState<PlayerController> GetState(PlayerState state)
+    {
+        return state switch
+        {
+            PlayerState.Idle => new IdleState(),
+            PlayerState.Move => new MoveState(),
+            PlayerState.Jump => new JumpState(),
+            _                => null
+        };
+    }
+
+    private void ChangeState(PlayerState newState)
+    {
+        stateMachine.ChangeState(states[(int)newState]);
+        currentState = newState;
+    }
+
+    private void TryStateTransition()
+    {
+        var next = states[(int)currentState].CheckTransition(this);
+        if (next.HasValue && next.Value != currentState)
+        {
+            ChangeState(next.Value);
+        }
+    }
 
     private void Update()
     {
+        TryStateTransition();
+        stateMachine.Update();
         if (Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), Vector3.down, out RaycastHit hit, 0.2f, groundLayer))
         {
-            isGrounded = true;
+            IsGrounded = true;
 
             if (hit.collider.TryGetComponent<IObjectExecutable>(out var executable))
             {
                 if (lastExecutable == executable) return;
 
-                executable.Execute(rigid);
+                executable.Execute(Rigidbody);
                 lastExecutable = executable;
             }
 
@@ -59,7 +121,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            isGrounded = false;
+            IsGrounded = false;
             lastExecutable = null;
             if (transform.parent != null)
                 transform.SetParent(null);
@@ -68,52 +130,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Jump();
-        Movement();
+        stateMachine?.FixedUpdate();
         SyncWithPlatform();
-    }
-
-    private void Movement()
-    {
-        Vector2 moveInput = inputHandler.MoveInput;
-
-        // Cinemachine VirtualCamera의 Transform 가져오기
-        Transform camTransform = CameraController.Instance.MainCamera.transform;
-
-        // 카메라 기준 방향 벡터
-        Vector3 camForward = camTransform.forward;
-        Vector3 camRight   = camTransform.right;
-        camForward.y = 0f;
-        camRight.y = 0f;
-        camForward.Normalize();
-        camRight.Normalize();
-
-        // 입력 기반 이동 벡터
-        Vector3 move = (camForward * moveInput.y + camRight * moveInput.x).normalized;
-
-        // Rigidbody로 이동
-        Vector3 velocity = new Vector3(move.x * moveSpeed, rigid.velocity.y, move.z * moveSpeed);
-        rigid.velocity = velocity;
-
-        // 이동 방향 회전
-        if (move != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(move);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
-        }
-
-        // 애니메이션 이동 속도
-        Vector2 flatVelocity = new Vector2(velocity.x, velocity.z);
-        playerAnimationHandler.SetMoveSpeed(flatVelocity.magnitude);
-    }
-
-    private void Jump()
-    {
-        if (!inputHandler.JumpRequested || !isGrounded)
-            return;
-
-        rigid.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        inputHandler.ResetJumpRequested();
     }
 
     private void SyncWithPlatform()
@@ -121,7 +139,7 @@ public class PlayerController : MonoBehaviour
         if (currentPlatform == null) return;
 
         Vector3 delta = currentPlatform.PlatformTransform.position - lastPlayformPos;
-        rigid.MovePosition(rigid.position + delta);
+        Rigidbody.MovePosition(Rigidbody.position + delta);
         lastPlayformPos = currentPlatform.PlatformTransform.position;
     }
 

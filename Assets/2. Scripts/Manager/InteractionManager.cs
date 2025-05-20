@@ -12,8 +12,10 @@ public class InteractionManager : MonoBehaviour
     private Camera mainCamera;
 
 
+    private float timer;
     private bool isInteracting;
     private IHUDDisplayable currentIhudDisplayable;
+
 
     void Start()
     {
@@ -28,16 +30,21 @@ public class InteractionManager : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, int.MaxValue, interactionLayerMask))
         {
-            if (hit.collider.TryGetComponent<IHUDDisplayable>(out IHUDDisplayable interactable) && !isInteracting && currentIhudDisplayable != interactable)
+            timer += Time.deltaTime;
+            if (timer >= checkRate)
             {
-                UIObjectInfo.Instance.SetObjectInfo(interactable);
-                isInteracting = true;
+                if (hit.collider.TryGetComponent<IHUDDisplayable>(out IHUDDisplayable interactable) && !isInteracting && currentIhudDisplayable != interactable)
+                {
+                    UIObjectInfo.Instance.SetObjectInfo(interactable);
+                    isInteracting = true;
+                }
             }
         }
         else if (isInteracting)
         {
             isInteracting = false;
             currentIhudDisplayable = null;
+            timer = 0;
             UIObjectInfo.Instance.Close();
         }
     }
