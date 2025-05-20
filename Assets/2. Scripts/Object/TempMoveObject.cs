@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(ObjectMoveHandler))]
-public class TempMoveObject : MonoBehaviour, IInteractable, IPlatform
+public class TempMoveObject : MonoBehaviour, IHUDDisplayable, IPlatform
 {
     [SerializeField] private string objectName;
     [SerializeField] private string objectDescription;
@@ -24,7 +24,7 @@ public class TempMoveObject : MonoBehaviour, IInteractable, IPlatform
         Move();
     }
 
-    public void Move()
+    private void Move()
     {
         moveHandler.StartMoving();
     }

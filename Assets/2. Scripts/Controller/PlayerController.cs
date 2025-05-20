@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 0.2f, groundLayer))
+        if (Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), Vector3.down, out RaycastHit hit, 0.2f, groundLayer))
         {
             isGrounded = true;
 
@@ -125,9 +125,8 @@ public class PlayerController : MonoBehaviour
         lastPlayformPos = currentPlatform.PlatformTransform.position;
     }
 
-    private void ClearPlatform()
+    private void OnDrawGizmosSelected()
     {
-        currentPlatform = null;
-        lastPlayformPos = Vector3.zero;
+        Debug.DrawRay(transform.position + new Vector3(0, 0.1f, 0), Vector3.down * 0.2f, Color.red);
     }
 }

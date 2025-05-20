@@ -23,10 +23,10 @@ public class UIObjectInfo : UIBase<UIObjectInfo>, IUIBase
     }
 
 
-    public void SetObjectInfo(IInteractable interactable)
+    public void SetObjectInfo(IHUDDisplayable ihudDisplayable)
     {
-        objectName.text = interactable.Name;
-        objectDescription.text = interactable.Description;
+        objectName.text = ihudDisplayable.Name;
+        objectDescription.text = ihudDisplayable.Description;
         Open();
     }
 }

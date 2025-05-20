@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(ObjectJumpHandler))]
-public class TempJumpObject : MonoBehaviour, IInteractable, IObjectExecutable
+public class TempJumpObject : MonoBehaviour, IHUDDisplayable, IObjectExecutable
 {
     [SerializeField] private string objectName;
     [SerializeField] private string objectDescription;

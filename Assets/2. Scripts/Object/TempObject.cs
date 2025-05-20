@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TempObject : MonoBehaviour, IInteractable
+public class TempObject : MonoBehaviour, IHUDDisplayable
 {
     [SerializeField] private string name;
     [SerializeField] private string description;

@@ -38,16 +38,4 @@ public class ObjectMoveHandler : MonoBehaviour
 
         moveSequence.OnComplete(() => isMoving = false);
     }
-
-    public void StopMoving()
-    {
-        moveSequence?.Kill();
-        isMoving = false;
-    }
-
-    public void ResetToStart()
-    {
-        if (waypoints.Count > 0)
-            transform.position = waypoints[0].position;
-    }
 }
