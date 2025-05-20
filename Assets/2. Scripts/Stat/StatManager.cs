@@ -10,6 +10,14 @@ public enum StatType
     CurrentHp,
     MoveSpeed,
     JumpPower,
+    Stamina,
+}
+
+public enum StatValueType
+{
+    Base,
+    Buff,
+    Equipment
 }
 
 
@@ -48,11 +56,49 @@ public class StatManager : MonoBehaviour
             StatType.CurrentHp => new PlayerStat(type, 100),
             StatType.MoveSpeed => new PlayerStat(type, 5),
             StatType.JumpPower => new PlayerStat(type, 5),
+            StatType.Stamina   => new PlayerStat(type, 100),
             _                  => null
         };
         // return new PlayerStat(type, value);
     }
 
+    public void ApplyStatEffect(StatType statType, StatValueType valueType, float value)
+    {
+        switch (valueType)
+        {
+            case StatValueType.Base:
+                playerStatDic[statType].ApplyBaseStat(value);
+                break;
+            case StatValueType.Buff:
+                playerStatDic[statType].ApplyBuffStat(value);
+                break;
+            case StatValueType.Equipment:
+                playerStatDic[statType].ApplyEquipmentStat(value);
+                break;
+        }
+
+        // if (statType == StatType.MaxHp)
+        // {
+        //     playerStatDic[StatType.CurrentHp].MaxValue = playerStatDic[StatType.MaxHp].FinalValue;
+        // }
+        // else if (statType == StatType.CurrentHp)
+        // {
+        //     PlayerController.Instance.HpBarUI.UpdateFill(playerStatDic[StatType.CurrentHp].FinalValue, playerStatDic[StatType.MaxHp].FinalValue);
+        // }
+    }
+
+    public void AllDecreaseStatValue(StatType statType, float value)
+    {
+        playerStatDic[statType].DecreaseAllValue(value);
+        if (statType == StatType.MaxHp)
+        {
+            playerStatDic[StatType.CurrentHp].MaxValue = playerStatDic[StatType.MaxHp].FinalValue;
+        }
+        // else if (statType == StatType.CurrentHp)
+        // {
+        //     PlayerController.Instance.HpBarUI.UpdateFill(playerStatDic[StatType.CurrentHp].FinalValue, playerStatDic[StatType.MaxHp].FinalValue);
+        // }
+    }
 
     public float GetFinalValue(StatType type)
     {

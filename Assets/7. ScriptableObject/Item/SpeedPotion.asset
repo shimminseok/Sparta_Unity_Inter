@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 661c63f36c524df1bea426fa6e210084, type: 3}
-  m_Name: Carrot
+  m_Name: SpeedPotion
   m_EditorClassIdentifier: 
-  Id: 1
-  ItemName: "\uB2F9\uADFC"
+  Id: 3
+  ItemName: "\uC2A4\uD53C\uB4DC \uD3EC\uC158"
   ItemSprite: {fileID: 0}
   ItemType: 0
   StatusEffects:
-  - EffectType: 0
+  - EffectType: 4
     Stat:
-      Type: 1
-      ModifierType: 0
-      Value: 20
-    Duration: 0
+      Type: 2
+      ModifierType: 1
+      Value: 0.3
+    Duration: 10
     TickInterval: 0
   IsStackable: 1

@@ -10,17 +10,19 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(PlayerAnimationHandler))]
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(StatManager))]
-public class PlayerController : MonoBehaviour
+[RequireComponent(typeof(StatusEffectManager))]
+public class PlayerController : SceneOnlySingleton<PlayerController>
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private LayerMask groundLayer;
 
-    public InputHandler   InputHandler   { get; private set; }
-    public PlayerMovement PlayerMovement { get; private set; }
-    public StatManager    StatManager    { get; private set; }
-    public Animator       Animator       { get; private set; }
+    public InputHandler        InputHandler        { get; private set; }
+    public PlayerMovement      PlayerMovement      { get; private set; }
+    public StatManager         StatManager         { get; private set; }
+    public Animator            Animator            { get; private set; }
+    public StatusEffectManager StatusEffectManager { get; private set; }
 
     public bool IsGrounded { get; private set; }
 
@@ -44,6 +46,7 @@ public class PlayerController : MonoBehaviour
         PlayerMovement = GetComponent<PlayerMovement>();
         Animator = GetComponent<Animator>();
         StatManager = GetComponent<StatManager>();
+        StatusEffectManager = GetComponent<StatusEffectManager>();
     }
 
     private void Start()
