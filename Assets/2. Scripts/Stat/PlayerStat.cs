@@ -1,71 +1,93 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class PlayerStat
+public abstract class StatBase
 {
-    public StatType Type;
-    public float BaseValue;
-    public float BuffValue;
-    public float EquipmentValue;
+    public StatType Type { get; protected set; }
+    public Action<float> OnValueChanged;
 
-    public float MaxValue;
-    public float MinValue = 0;
-
-    public float FinalValue => Mathf.Clamp(BaseValue + BuffValue + EquipmentValue, MinValue, MaxValue);
-
-    public PlayerStat(StatType type, float value)
+    public StatBase(StatType type)
     {
         Type = type;
-        BaseValue = value;
     }
 
-    public void ApplyBaseStat(float value)
+    public abstract float GetCurrent();
+}
+
+public class CalculatedStat : StatBase
+{
+    public float BaseValue   { get; private set; }
+    public float BuffFlat    { get; private set; }
+    public float BuffPercent { get; private set; }
+    public float EquipValue  { get; private set; }
+
+    public float FinalValue => Mathf.Max((BaseValue + BuffFlat + EquipValue) * (1 + BuffPercent), 0);
+
+    public CalculatedStat(StatType type, float baseValue) : base(type)
+    {
+        BaseValue = baseValue;
+    }
+
+    public void ModifyBaseValue(float value)
     {
         BaseValue += value;
+        OnValueChanged?.Invoke(FinalValue);
     }
 
-    public void ApplyBuffStat(float value)
+    public void ModifyBuffFlat(float value)
     {
-        BuffValue += value;
+        BuffFlat += value;
+        OnValueChanged?.Invoke(FinalValue);
     }
 
-    public void ApplyEquipmentStat(float value)
+    public void ModifyBuffPercent(float value)
     {
-        EquipmentValue += value;
+        BuffPercent += value;
+        OnValueChanged?.Invoke(FinalValue);
     }
 
-    private float DecreaseBaseValue(float value)
+    public void ModifyEquipmentValue(float value)
     {
-        value = Mathf.Abs(value);
-        float decreaseAmount = Mathf.Min(BaseValue, value);
-        BaseValue -= decreaseAmount;
-        return value - decreaseAmount;
+        EquipValue += value;
+        OnValueChanged?.Invoke(FinalValue);
     }
 
-    private float DecreaseBuffValue(float value)
+    public override float GetCurrent() => FinalValue;
+}
+
+public class ResourceStat : StatBase
+{
+    public float CurrentValue { get; private set; }
+    public float MaxValue     { get; private set; }
+
+
+    public ResourceStat(StatType type, float maxValue) : base(type)
     {
-        value = Mathf.Abs(value);
-        float decreaseAmount = Mathf.Min(BuffValue, value);
-        BuffValue -= decreaseAmount;
-        return value - decreaseAmount;
+        CurrentValue = maxValue;
+        MaxValue = maxValue;
     }
 
-    private float DecreaseEquipmentValue(float value)
+    public void Recover(float value)
     {
-        value = Mathf.Abs(value);
-        float decreaseAmount = Mathf.Min(BuffValue, value);
-        BuffValue -= decreaseAmount;
-        return value - decreaseAmount;
+        CurrentValue = Mathf.Min(CurrentValue + value, MaxValue);
+        OnValueChanged?.Invoke(CurrentValue);
     }
 
-
-    public void DecreaseAllValue(float value)
+    public void Consume(float value)
     {
-        float remain = value;
-        remain = DecreaseBuffValue(remain);
-        remain = DecreaseEquipmentValue(remain);
-        remain = DecreaseBaseValue(remain);
+        CurrentValue = Mathf.Max(CurrentValue - value, 0);
+        OnValueChanged?.Invoke(CurrentValue);
     }
+
+    public void SetMax(float max)
+    {
+        MaxValue = max;
+        CurrentValue = Mathf.Min(CurrentValue, MaxValue);
+        OnValueChanged?.Invoke(CurrentValue);
+    }
+
+
+    public override float GetCurrent() => CurrentValue;
 }

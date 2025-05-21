@@ -5,9 +5,9 @@ using UnityEngine.InputSystem;
 
 public class InputHandler : MonoBehaviour
 {
-    public Vector2 MoveInput     { get; private set; }
-    public bool    JumpPressed   { get; private set; }
-    public bool    JumpRequested { get; private set; }
+    public Vector2 MoveInput         { get; private set; }
+    public bool    JumpRequested     { get; private set; }
+    public bool    InteractRequested { get; private set; }
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -16,14 +16,31 @@ public class InputHandler : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
+        if (!PlayerController.Instance.IsGrounded)
+            return;
         if (context.performed)
         {
-            JumpPressed = true;
             JumpRequested = true;
+        }
+    }
+
+    public void OnOpenInventory(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            UIManager.Instance.CheckOpenPopup(UIInventory.Instance);
+        }
+    }
+
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            InteractRequested = true;
         }
         else if (context.canceled)
         {
-            JumpPressed = false;
+            InteractRequested = false;
         }
     }
 

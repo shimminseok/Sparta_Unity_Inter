@@ -31,7 +31,7 @@ public class IdleState : IState<PlayerController>
     {
         if (owner.InputHandler.MoveInput != Vector2.zero)
             return PlayerState.Move;
-        else if (owner.InputHandler.JumpRequested)
+        else if (owner.PlayerMovement.CanJump)
             return PlayerState.Jump;
 
         return null;
@@ -54,7 +54,16 @@ public class MoveState : IState<PlayerController>
 
     public void OnFixedUpdate(PlayerController owner)
     {
-        owner.PlayerMovement.Movement();
+        if (owner.IsTouchingWall)
+        {
+            owner.Rigidbody.useGravity = false;
+            owner.PlayerMovement.ClimbWall();
+        }
+        else
+        {
+            owner.Rigidbody.useGravity = true;
+            owner.PlayerMovement.Movement();
+        }
     }
 
     public void OnExit(PlayerController owenr)
@@ -66,7 +75,7 @@ public class MoveState : IState<PlayerController>
     {
         if (owner.InputHandler.MoveInput == Vector2.zero)
             return PlayerState.Idle;
-        else if (owner.InputHandler.JumpRequested)
+        else if (owner.PlayerMovement.CanJump)
             return PlayerState.Jump;
 
         return null;
@@ -79,7 +88,7 @@ public class JumpState : IState<PlayerController>
 
     public void OnEnter(PlayerController owner)
     {
-        // owner.Animator.SetTrigger(JumpHash);
+        owner.PlayerMovement.Jump();
     }
 
     public void OnUpdate(PlayerController owner)
@@ -88,11 +97,11 @@ public class JumpState : IState<PlayerController>
 
     public void OnFixedUpdate(PlayerController owner)
     {
-        owner.PlayerMovement.Jump();
     }
 
     public void OnExit(PlayerController owner)
     {
+        owner.InputHandler.ResetJumpRequested();
     }
 
     public PlayerState? CheckTransition(PlayerController owner)

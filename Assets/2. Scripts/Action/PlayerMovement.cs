@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField] private float requireJumpStamina = 10f;
+
     private PlayerController owner;
+
+    public bool CanJump => owner.InputHandler.JumpRequested && owner.IsGrounded && owner.StatManager.GetValue(StatType.CurrentStamina) >= requireJumpStamina;
 
     private void Awake()
     {
@@ -30,7 +34,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = (camForward * moveInput.y + camRight * moveInput.x).normalized;
 
         // Rigidbody로 이동
-        float   moveSpeed      = owner.StatManager.GetFinalValue(StatType.MoveSpeed);
+        float   moveSpeed      = owner.StatManager.GetValue(StatType.MoveSpeed);
         Vector3 targetVelocity = new Vector3(move.x * moveSpeed, owner.Rigidbody.velocity.y, move.z * moveSpeed);
         Vector3 deltaPosition  = new Vector3(targetVelocity.x, 0f, targetVelocity.z) * Time.fixedDeltaTime;
         owner.Rigidbody.MovePosition(owner.Rigidbody.position + deltaPosition);
@@ -43,14 +47,29 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void ClimbWall()
+    {
+        Vector2 moveInput      = owner.InputHandler.MoveInput;
+        Vector3 climbDirection = transform.up * moveInput.y + transform.right * moveInput.x;
+        climbDirection.y = Mathf.Clamp(climbDirection.y, -1f, 1f); // 위아래만 가능하게 조절해도 됨
+        climbDirection.Normalize();
+
+        float   moveSpeed     = owner.StatManager.GetValue(StatType.MoveSpeed);
+        Vector3 deltaPosition = climbDirection * moveSpeed * Time.fixedDeltaTime;
+
+        owner.Rigidbody.MovePosition(owner.Rigidbody.position + deltaPosition);
+    }
+
     public void Jump()
     {
-        if (!owner.InputHandler.JumpRequested || !owner.IsGrounded)
+        if (!CanJump)
+        {
+            owner.InputHandler.ResetJumpRequested();
             return;
-
+        }
 
         owner.Rigidbody.velocity = new Vector3(owner.Rigidbody.velocity.x, 0f, owner.Rigidbody.velocity.z);
-        owner.Rigidbody.AddForce(Vector3.up * owner.StatManager.GetFinalValue(StatType.JumpPower), ForceMode.Impulse);
-        owner.InputHandler.ResetJumpRequested();
+        owner.Rigidbody.AddForce(Vector3.up * owner.StatManager.GetValue(StatType.JumpPower), ForceMode.Impulse);
+        owner.StatManager.Consume(StatType.CurrentStamina, requireJumpStamina);
     }
 }

@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 public class InteractionManager : MonoBehaviour
 {
-    [FormerlySerializedAs("objectLayerMask")]
     [SerializeField] private LayerMask interactionLayerMask;
 
     [SerializeField] private float checkRate = 0.5f;
@@ -17,14 +17,14 @@ public class InteractionManager : MonoBehaviour
     private IHUDDisplayable currentIhudDisplayable;
 
 
-    void Start()
+    private void Start()
     {
         mainCamera = Camera.main;
     }
 
-    void Update()
+    private void Update()
     {
-        if (mainCamera is null) return;
+        if (mainCamera is null || EventSystem.current.IsPointerOverGameObject()) return;
 
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);

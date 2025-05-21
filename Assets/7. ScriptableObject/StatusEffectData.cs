@@ -9,7 +9,8 @@ public enum StatusEffectType
     InstantDebuff,
     OverTimeDebuff,
     TimedModifierBuff,
-    PeriodicDamageDebuff
+    PeriodicDamageDebuff,
+    Recover,
 }
 
 public enum StatModifierType

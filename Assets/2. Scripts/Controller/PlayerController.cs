@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(StatManager))]
 [RequireComponent(typeof(StatusEffectManager))]
-public class PlayerController : SceneOnlySingleton<PlayerController>
+public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageable
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
@@ -23,6 +23,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>
     public StatManager         StatManager         { get; private set; }
     public Animator            Animator            { get; private set; }
     public StatusEffectManager StatusEffectManager { get; private set; }
+    public Rigidbody           Rigidbody           { get; private set; }
 
     public bool IsGrounded { get; private set; }
 
@@ -35,9 +36,8 @@ public class PlayerController : SceneOnlySingleton<PlayerController>
     private PlayerState currentState;
 
 
-    //임시
-    public Rigidbody Rigidbody     { get; private set; }
-    public float     RotationSpeed => rotationSpeed;
+    public bool  IsTouchingWall { get; private set; }
+    public float RotationSpeed  => rotationSpeed;
 
     private void Awake()
     {
@@ -85,7 +85,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>
 
     private void TryStateTransition()
     {
-        var next = states[(int)currentState].CheckTransition(this);
+        PlayerState? next = states[(int)currentState].CheckTransition(this);
         if (next.HasValue && next.Value != currentState)
         {
             ChangeState(next.Value);
@@ -96,6 +96,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>
     {
         TryStateTransition();
         stateMachine.Update();
+
         if (Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), Vector3.down, out RaycastHit hit, 0.2f, groundLayer))
         {
             IsGrounded = true;
@@ -129,12 +130,32 @@ public class PlayerController : SceneOnlySingleton<PlayerController>
             if (transform.parent != null)
                 transform.SetParent(null);
         }
+
+        if (Physics.Raycast(transform.position, transform.forward * 0.3f, out RaycastHit forwardHit, 0.2f))
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                if (forwardHit.collider.TryGetComponent<IInteractable>(out IInteractable executable))
+                {
+                    executable?.Execute(this);
+                }
+            }
+        }
+        else
+        {
+            IsTouchingWall = false;
+        }
     }
 
     private void FixedUpdate()
     {
         stateMachine?.FixedUpdate();
         SyncWithPlatform();
+    }
+
+    public void IsWallAhead(bool isTouchingWall)
+    {
+        IsTouchingWall = isTouchingWall;
     }
 
     private void SyncWithPlatform()
@@ -146,8 +167,19 @@ public class PlayerController : SceneOnlySingleton<PlayerController>
         lastPlayformPos = currentPlatform.PlatformTransform.position;
     }
 
+    public void TakeDamage(float damage)
+    {
+        StatManager.Consume(StatType.CurrentHp, damage);
+        if (StatManager.GetValue(StatType.CurrentHp) <= 0)
+        {
+            //죽음
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
         Debug.DrawRay(transform.position + new Vector3(0, 0.1f, 0), Vector3.down * 0.2f, Color.red);
+
+        Debug.DrawRay(transform.position, transform.forward * 0.3f, Color.green);
     }
 }

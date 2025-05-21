@@ -9,20 +9,17 @@
             StatusEffectType.InstantDebuff     => new InstantDebuff(),
             StatusEffectType.OverTimeDebuff    => new OverTimeDebuff(),
             StatusEffectType.TimedModifierBuff => new TimedModifierBuff(),
-            // StatusEffectType.PeriodicDamageDebuff => new PeriodicDamageDebuff
-            // {
-            //     Damage = new DamageInfo
-            //     {
-            //         Amount = data.value,
-            //         Type = data.damageType
-            //     }
-            // },
+            StatusEffectType.Recover           => new RecoverEffect(),
+
+            StatusEffectType.PeriodicDamageDebuff => new PeriodicDamageDebuff(),
+
             _ => null
         };
         if (effect != null)
         {
             effect.StatType = data.Stat.Type;
             effect.Duration = data.Duration;
+            effect.ModifierType = data.Stat.ModifierType;
             effect.Value = data.Stat.Value;
             effect.TickInterval = data.TickInterval;
             return effect;

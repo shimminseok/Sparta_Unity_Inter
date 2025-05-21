@@ -31,9 +31,27 @@ public class StatusEffectManager : MonoBehaviour
         activeEffects.Add(effect);
     }
 
-    public void ModifyStat(StatType statType, float value)
+    public void ModifyBuffStat(StatType statType, StatModifierType modifierType, float value)
     {
-        statManager.ApplyStatEffect(statType, StatValueType.Buff, value);
+        switch (modifierType)
+        {
+            case StatModifierType.Flat:
+                statManager.ApplyStatEffect(statType, StatValueType.BuffFlat, value);
+                break;
+            case StatModifierType.Percent:
+                statManager.ApplyStatEffect(statType, StatValueType.BuffPercent, value);
+                break;
+        }
+    }
+
+    public void RecoverEffect(StatType statType, float value)
+    {
+        statManager.Recover(statType, value);
+    }
+
+    public void ConsumeEffect(StatType statType, float value)
+    {
+        statManager.Consume(statType, value);
     }
 
     public void RemoveAllEffects()
@@ -51,4 +69,3 @@ public class StatusEffectManager : MonoBehaviour
         activeEffects.Clear();
     }
 }
-

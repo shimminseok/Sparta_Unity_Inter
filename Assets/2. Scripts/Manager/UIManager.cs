@@ -5,27 +5,36 @@ using UnityEngine;
 
 public class UIManager : Singleton<UIManager>
 {
-    private Stack<IUIBase> openedUI = new Stack<IUIBase>();
+    private List<IUIBase> openedUI = new List<IUIBase>();
 
-    public void CheckOpenUI()
+
+    public void CheckOpenPopup(IUIBase panel)
     {
-        if (openedUI.TryPeek(out IUIBase openUI))
+        if (openedUI.Contains(panel))
         {
-            Close();
+            panel.Close();
         }
         else
         {
-            Open(openUI);
+            panel.Open();
         }
     }
 
-    public void Open(IUIBase openIui)
+    public void OpenPanel(IUIBase panel)
     {
-        openedUI.Push(openIui);
+        openedUI.Add(panel);
     }
 
-    public void Close()
+    public void ClosePanel(IUIBase panel)
     {
-        openedUI.Pop();
+        openedUI.Remove(panel);
+    }
+
+    public void AllClosePanel()
+    {
+        for (int i = openedUI.Count - 1; i >= 0; i--)
+        {
+            openedUI[i].Close();
+        }
     }
 }

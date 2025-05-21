@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 561a25d5916ff9e4bab3ab32906b4a24, type: 3}
+  m_Name: GrilledMeat
+  m_EditorClassIdentifier: 
+  Id: 7
+  ItemName: "\uAD6C\uC6B4 \uACE0\uAE30"
+  ItemSprite: {fileID: 21300000, guid: 6f17b16f02b2246499ac554b97a16d4a, type: 3}
+  IsStackable: 1
+  ItemType: 0
+  StatusEffects:
+  - EffectType: 6
+    Stat:
+      Type: 4
+      ModifierType: 0
+      Value: 5
+    Duration: 0
+    TickInterval: 0
+  - EffectType: 6
+    Stat:
+      Type: 5
+      ModifierType: 0
+      Value: 20
+    Duration: 0
+    TickInterval: 0
+  CoolTime: 0

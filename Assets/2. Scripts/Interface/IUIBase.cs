@@ -13,13 +13,13 @@ public class UIBase<T> : SceneOnlySingleton<T> where T : UIBase<T>, IUIBase
 
     public virtual void Open()
     {
-        UIManager.Instance.CheckOpenUI();
         content.SetActive(true);
+        UIManager.Instance.OpenPanel(this as IUIBase);
     }
 
     public virtual void Close()
     {
-        UIManager.Instance.Close();
         content.SetActive(false);
+        UIManager.Instance.ClosePanel(this as IUIBase);
     }
 }

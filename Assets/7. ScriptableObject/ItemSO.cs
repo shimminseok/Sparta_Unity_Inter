@@ -1,18 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-
-[CreateAssetMenu(fileName = "ItemData", menuName = "Item", order = 0)]
-public class ItemSO : ScriptableObject
-{
-    public int Id;
-    public string ItemName;
-    public Sprite ItemSprite;
-    public ItemType ItemType;
-    public List<StatusEffectData> StatusEffects;
-    public bool IsStackable = false;
-}
 
 public enum ItemType
 {
@@ -21,8 +11,11 @@ public enum ItemType
     Material,
 }
 
-public enum ModifierType
+public class ItemSO : ScriptableObject
 {
-    Additive,
-    Multiplicative,
+    public int Id;
+    public string ItemName;
+    public Sprite ItemSprite;
+    public bool IsStackable = false;
+    public ItemType ItemType;
 }
