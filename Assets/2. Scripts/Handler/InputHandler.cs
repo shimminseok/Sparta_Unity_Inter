@@ -34,18 +34,19 @@ public class InputHandler : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.started)
         {
             InteractRequested = true;
-        }
-        else if (context.canceled)
-        {
-            InteractRequested = false;
         }
     }
 
     public void ResetJumpRequested()
     {
         JumpRequested = false;
+    }
+
+    public void ResetInteractRequested()
+    {
+        InteractRequested = false;
     }
 }

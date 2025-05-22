@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(StatManager))]
 [RequireComponent(typeof(StatusEffectManager))]
-public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageable
+public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageable, IKnockbackable
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
@@ -29,11 +29,12 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
 
     private IObjectExecutable lastExecutable;
     private IPlatform currentPlatform;
-    private Vector3 lastPlayformPos;
-
     private StateMachine<PlayerController> stateMachine;
     private IState<PlayerController>[] states;
+
+    private Vector3 lastPlayformPos;
     private PlayerState currentState;
+    private IInteractable currentInteractable;
 
 
     public bool  IsTouchingWall { get; private set; }
@@ -95,56 +96,10 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
     private void Update()
     {
         TryStateTransition();
+
+        CheckGround();
+        CheckFowardInteraction();
         stateMachine.Update();
-
-        if (Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), Vector3.down, out RaycastHit hit, 0.2f, groundLayer))
-        {
-            IsGrounded = true;
-
-            if (hit.collider.TryGetComponent<IObjectExecutable>(out var executable))
-            {
-                if (lastExecutable == executable) return;
-
-                executable.Execute(Rigidbody);
-                lastExecutable = executable;
-            }
-
-            else if (hit.collider.TryGetComponent<IPlatform>(out var platform))
-            {
-                if (currentPlatform == platform) return;
-
-                currentPlatform = platform;
-                lastPlayformPos = currentPlatform.PlatformTransform.position;
-            }
-            else
-            {
-                currentPlatform = null;
-                lastExecutable = null;
-                lastPlayformPos = Vector3.zero;
-            }
-        }
-        else
-        {
-            IsGrounded = false;
-            lastExecutable = null;
-            if (transform.parent != null)
-                transform.SetParent(null);
-        }
-
-        if (Physics.Raycast(transform.position, transform.forward * 0.3f, out RaycastHit forwardHit, 0.2f))
-        {
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                if (forwardHit.collider.TryGetComponent<IInteractable>(out IInteractable executable))
-                {
-                    executable?.Execute(this);
-                }
-            }
-        }
-        else
-        {
-            IsTouchingWall = false;
-        }
     }
 
     private void FixedUpdate()
@@ -167,6 +122,80 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
         lastPlayformPos = currentPlatform.PlatformTransform.position;
     }
 
+    private void CheckFowardInteraction()
+    {
+        if (Physics.Raycast(transform.position, transform.forward * 0.3f, out RaycastHit forwardHit, 0.2f))
+        {
+            if (forwardHit.collider.TryGetComponent<IInteractable>(out IInteractable newInteractable))
+            {
+                if (currentInteractable != newInteractable)
+                {
+                    currentInteractable?.Exit(this);
+                    currentInteractable = newInteractable;
+                    currentInteractable.PrintUI();
+                }
+
+                if (InputHandler.InteractRequested)
+                {
+                    newInteractable.Execute(this);
+                    InputHandler.ResetInteractRequested();
+                }
+            }
+            else
+            {
+                ClearCurrentInteractable();
+            }
+        }
+        else
+        {
+            ClearCurrentInteractable();
+        }
+    }
+
+    private void CheckGround()
+    {
+        if (Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), Vector3.down, out RaycastHit hit, 0.2f, groundLayer))
+        {
+            IsGrounded = true;
+            //점프 발판 등 단발성 플랫폼
+            if (hit.collider.TryGetComponent<IObjectExecutable>(out var executable))
+            {
+                if (lastExecutable == executable) return;
+
+                executable.Execute(Rigidbody);
+                lastExecutable = executable;
+            }
+            //움직이는 발판 등 지속성 플랫폼
+            else if (hit.collider.TryGetComponent<IPlatform>(out var platform))
+            {
+                if (currentPlatform == platform) return;
+
+                currentPlatform = platform;
+                lastPlayformPos = currentPlatform.PlatformTransform.position;
+            }
+            else
+            {
+                currentPlatform = null;
+                lastExecutable = null;
+                lastPlayformPos = Vector3.zero;
+            }
+        }
+        else
+        {
+            IsGrounded = false;
+            lastExecutable = null;
+        }
+    }
+
+    private void ClearCurrentInteractable()
+    {
+        if (currentInteractable != null)
+        {
+            currentInteractable.Exit(this);
+            currentInteractable = null;
+        }
+    }
+
     public void TakeDamage(float damage)
     {
         StatManager.Consume(StatType.CurrentHp, damage);
@@ -174,6 +203,11 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
         {
             //죽음
         }
+    }
+
+    public void ApplyKnockback(Vector3 force)
+    {
+        Rigidbody.AddForce(force, ForceMode.Impulse);
     }
 
     private void OnDrawGizmosSelected()

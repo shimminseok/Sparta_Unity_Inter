@@ -30,7 +30,7 @@ public class ObjectMoveHandler : MonoBehaviour
             if (transform.position == point.position)
                 continue;
 
-            moveSequence.Append(transform.DOMove(point.position, segmentDuration).SetEase(ease));
+            moveSequence.Append(transform.DOMove(point.position, segmentDuration).SetUpdate(UpdateType.Fixed).SetEase(ease));
         }
 
         if (loop)

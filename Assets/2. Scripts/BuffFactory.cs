@@ -15,16 +15,13 @@
 
             _ => null
         };
-        if (effect != null)
-        {
-            effect.StatType = data.Stat.Type;
-            effect.Duration = data.Duration;
-            effect.ModifierType = data.Stat.ModifierType;
-            effect.Value = data.Stat.Value;
-            effect.TickInterval = data.TickInterval;
-            return effect;
-        }
+        if (effect == null) return null;
 
-        return null;
+        effect.StatType = data.Stat.Type;
+        effect.Duration = data.Duration;
+        effect.ModifierType = data.Stat.ModifierType;
+        effect.Value = data.Stat.Value;
+        effect.TickInterval = data.TickInterval;
+        return effect;
     }
 }

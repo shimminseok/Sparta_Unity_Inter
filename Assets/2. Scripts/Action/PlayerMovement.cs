@@ -58,6 +58,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 deltaPosition = climbDirection * moveSpeed * Time.fixedDeltaTime;
 
         owner.Rigidbody.MovePosition(owner.Rigidbody.position + deltaPosition);
+        //임시
+        owner.StatManager.Consume(StatType.CurrentStamina, 1f);
     }
 
     public void Jump()

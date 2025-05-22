@@ -71,6 +71,7 @@ public class CameraController : Singleton<CameraController>
         {
             distance -= zoomAmount * zoomSpeed;
             distance = Mathf.Clamp(distance, minDistance, maxDistance);
+            mainCam.m_Lens.FieldOfView = distance;
         }
     }
 }

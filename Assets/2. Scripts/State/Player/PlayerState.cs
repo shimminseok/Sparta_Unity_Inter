@@ -21,6 +21,14 @@ public class IdleState : IState<PlayerController>
 
     public void OnFixedUpdate(PlayerController owner)
     {
+        if (owner.IsTouchingWall)
+        {
+            owner.StatManager.Consume(StatType.CurrentStamina, 0.2f);
+        }
+        else
+        {
+            owner.StatManager.Recover(StatType.CurrentStamina, 0.2f);
+        }
     }
 
     public void OnExit(PlayerController owenr)

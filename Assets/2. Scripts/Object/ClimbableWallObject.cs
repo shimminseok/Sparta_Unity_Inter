@@ -10,11 +10,17 @@ public class ClimbableWallObject : MonoBehaviour, IInteractable
 
     public void PrintUI()
     {
-        // UIHUD.Instance.
+        UIHUD.Instance.SetInteractionText(interactionName);
     }
 
     public void Execute(PlayerController player)
     {
         player.IsWallAhead(!player.IsTouchingWall);
+    }
+
+    public void Exit(PlayerController player)
+    {
+        player.IsWallAhead(false);
+        UIHUD.Instance.ResetInteractionText();
     }
 }

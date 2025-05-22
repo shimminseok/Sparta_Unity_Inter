@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class UIHUD : SceneOnlySingleton<UIHUD>
 {
     [SerializeField] private Image hpBar;
     [SerializeField] private Image staminaBar;
+    [SerializeField] private GameObject interactionObj;
+    [SerializeField] private TextMeshProUGUI interactionText;
 
     protected override void Awake()
     {
@@ -44,5 +47,18 @@ public class UIHUD : SceneOnlySingleton<UIHUD>
     {
         staminaBar.DOKill();
         staminaBar.DOFillAmount(current / max, 0.3f);
+    }
+
+
+    public void SetInteractionText(string text)
+    {
+        // interactionObj.SetActive(true);
+        interactionText.text = text;
+    }
+
+    public void ResetInteractionText()
+    {
+        // interactionObj.SetActive(false);
+        interactionText.text = "";
     }
 }

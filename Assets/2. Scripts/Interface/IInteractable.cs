@@ -4,4 +4,5 @@
 
     public void PrintUI();
     public void Execute(PlayerController player);
+    public void Exit(PlayerController player);
 }
