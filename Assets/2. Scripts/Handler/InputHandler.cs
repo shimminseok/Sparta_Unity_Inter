@@ -38,6 +38,10 @@ public class InputHandler : MonoBehaviour
         {
             InteractRequested = true;
         }
+        else if (context.canceled)
+        {
+            InteractRequested = false;
+        }
     }
 
     public void ResetJumpRequested()

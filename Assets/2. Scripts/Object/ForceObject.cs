@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class ForceObject : MonoBehaviour
+public class ForceObject : MonoBehaviour, IHUDDisplayable
 {
-    [FormerlySerializedAs("startForce")]
+    [SerializeField] private string objectName;
+    [SerializeField] private string objectDescription;
     [SerializeField] private float swingSpeed;
 
     [SerializeField] private bool forwardStart;
@@ -13,6 +14,9 @@ public class ForceObject : MonoBehaviour
 
     private Quaternion startRotation;
     private Rigidbody rigid;
+
+    public string Name        => objectName;
+    public string Description => objectDescription;
 
 
     private void Awake()
