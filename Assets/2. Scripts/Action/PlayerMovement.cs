@@ -37,13 +37,14 @@ public class PlayerMovement : MonoBehaviour
         float   moveSpeed      = owner.StatManager.GetValue(StatType.MoveSpeed);
         Vector3 targetVelocity = new Vector3(move.x * moveSpeed, owner.Rigidbody.velocity.y, move.z * moveSpeed);
         Vector3 deltaPosition  = new Vector3(targetVelocity.x, 0f, targetVelocity.z) * Time.fixedDeltaTime;
-        owner.Rigidbody.MovePosition(owner.Rigidbody.position + deltaPosition);
+        Debug.Log(deltaPosition);
+        owner.Rigidbody.MovePosition(owner.transform.localPosition + deltaPosition);
 
         // 이동 방향 회전
         if (move != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
-            owner.Rigidbody.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, owner.RotationSpeed * Time.fixedDeltaTime));
+            owner.Rigidbody.MoveRotation(Quaternion.Slerp(transform.localRotation, targetRotation, owner.RotationSpeed * Time.fixedDeltaTime));
         }
     }
 
