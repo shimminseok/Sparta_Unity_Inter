@@ -36,8 +36,6 @@
 - CinemachineVirtualCamera를 통해 부드러운 시점 전환 구현
   
 ---
-
----
 ## 사용된 디자인 패턴
 - State Pattern: 플레이어의 행동 상태 전환 (Idle, Move, Jump)
 - Factory Pattern: BuffFactory를 이용해 SO 기반의 버프 생성
