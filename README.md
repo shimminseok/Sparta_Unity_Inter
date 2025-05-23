@@ -42,6 +42,16 @@
 - Strategy Pattern (인터페이스 기반): IInteractable, IObjectExecutable, IPlatform, IKnockbackable 등 행동 전략 정의
 ---
 ## 인터페이스 정의 요약
+|인터페이스|설|
+|------|---|
+|IInteractable|플레이어와 상호작용 가능한 오브젝트 정의|
+|IActivatable|외부에 의해 활성화 가능한 오브젝트|
+|IPlatform|지속적으로 플레이어와 상호작용하는 플랫폼|
+|IObjectExecutable|일회성 상호작용 오브젝트 (예: 점프 발판)|
+|IKnockbackable|넉백 처리 대상 객체|
 
-
+---
+## 확장성
+- 새로운 버프 타입을 추가하려면 StatusEffect를 상속한 클래스만 추가하고, BuffFactory에 등록하면 됩니다.
+- 새로운 상태는 PlayerState enum과 함께 IState<PlayerController>를 구현하면 손쉽게 FSM에 연결할 수 있습니다.
 
