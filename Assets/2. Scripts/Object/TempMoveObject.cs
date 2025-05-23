@@ -14,8 +14,6 @@ public class TempMoveObject : MonoBehaviour, IHUDDisplayable, IPlatform, IActiva
     public string Name        => objectName;
     public string Description => objectDescription;
 
-    public Transform PlatformTransform => transform;
-
     private void Awake()
     {
         moveHandler = GetComponent<ObjectMoveHandler>();
@@ -28,12 +26,17 @@ public class TempMoveObject : MonoBehaviour, IHUDDisplayable, IPlatform, IActiva
             Move();
     }
 
-    public void Execute(GameObject player)
+
+    public void Execute(PlayerController player)
     {
         player.transform.SetParent(playerRoot);
     }
 
-    public void Exit(GameObject player)
+    public void OnUpdate()
+    {
+    }
+
+    public void Exit(PlayerController player)
     {
         player.transform.SetParent(null);
         player.transform.localScale = Vector3.one;

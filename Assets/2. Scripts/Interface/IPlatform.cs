@@ -2,7 +2,7 @@
 
 public interface IPlatform
 {
-    Transform PlatformTransform { get; }
-    void      Execute(GameObject player);
-    void      Exit(GameObject player);
+    void OnUpdate();
+    void Execute(PlayerController player);
+    void Exit(PlayerController player);
 }

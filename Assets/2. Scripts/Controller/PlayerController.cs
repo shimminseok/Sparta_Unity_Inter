@@ -113,15 +113,6 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
         IsTouchingWall = isTouchingWall;
     }
 
-    private void SyncWithPlatform()
-    {
-        if (currentPlatform == null) return;
-
-        Vector3 delta = currentPlatform.PlatformTransform.position - lastPlayformPos;
-        Rigidbody.MovePosition(Rigidbody.position + delta);
-        lastPlayformPos = currentPlatform.PlatformTransform.position;
-    }
-
     private void CheckFowardInteraction()
     {
         if (Physics.Raycast(transform.position, transform.forward * 0.3f, out RaycastHit forwardHit, 0.2f))
@@ -169,16 +160,18 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
             //움직이는 발판 등 지속성 플랫폼
             else if (hit.collider.TryGetComponent<IPlatform>(out var platform))
             {
+                platform.OnUpdate();
+
                 if (currentPlatform == platform)
                     return;
 
-                currentPlatform?.Exit(gameObject);
-                platform.Execute(gameObject);
+                currentPlatform?.Exit(this);
+                platform.Execute(this);
                 currentPlatform = platform;
             }
             else
             {
-                currentPlatform?.Exit(gameObject);
+                currentPlatform?.Exit(this);
                 currentPlatform = null;
                 lastExecutable = null;
                 lastPlayformPos = Vector3.zero;
@@ -186,7 +179,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
         }
         else
         {
-            currentPlatform?.Exit(gameObject);
+            currentPlatform?.Exit(this);
             IsGrounded = false;
             lastExecutable = null;
             currentPlatform = null;
