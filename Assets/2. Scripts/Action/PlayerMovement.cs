@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float requireJumpStamina = 10f;
+    [SerializeField] private float requireJumpStamina;
 
     private PlayerController owner;
 
@@ -49,6 +49,12 @@ public class PlayerMovement : MonoBehaviour
 
     public void ClimbWall()
     {
+        if (owner.StatManager.GetValue(StatType.CurrentStamina) <= 0f)
+        {
+            owner.IsWallAhead(false);
+            return;
+        }
+
         Vector2 moveInput      = owner.InputHandler.MoveInput;
         Vector3 climbDirection = transform.up * moveInput.y + transform.right * moveInput.x;
         climbDirection.y = Mathf.Clamp(climbDirection.y, -1f, 1f); // 위아래만 가능하게 조절해도 됨
@@ -58,7 +64,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 deltaPosition = climbDirection * moveSpeed * Time.fixedDeltaTime;
 
         owner.Rigidbody.MovePosition(owner.Rigidbody.position + deltaPosition);
-        //임시
         owner.StatManager.Consume(StatType.CurrentStamina, 1f);
     }
 
