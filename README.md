@@ -41,4 +41,7 @@
 - Factory Pattern: BuffFactory를 이용해 SO 기반의 버프 생성
 - Strategy Pattern (인터페이스 기반): IInteractable, IObjectExecutable, IPlatform, IKnockbackable 등 행동 전략 정의
 ---
+## 인터페이스 정의 요약
+
+
 
