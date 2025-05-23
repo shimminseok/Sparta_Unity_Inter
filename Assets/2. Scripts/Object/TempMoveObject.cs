@@ -8,6 +8,7 @@ public class TempMoveObject : MonoBehaviour, IHUDDisplayable, IPlatform, IActiva
     [SerializeField] private string objectName;
     [SerializeField] private string objectDescription;
     [SerializeField] private bool isStartMove;
+    [SerializeField] private Transform playerRoot;
 
     private ObjectMoveHandler moveHandler;
     public string Name        => objectName;
@@ -20,10 +21,22 @@ public class TempMoveObject : MonoBehaviour, IHUDDisplayable, IPlatform, IActiva
         moveHandler = GetComponent<ObjectMoveHandler>();
     }
 
+
     private void Start()
     {
         if (isStartMove)
             Move();
+    }
+
+    public void Execute(GameObject player)
+    {
+        player.transform.SetParent(playerRoot);
+    }
+
+    public void Exit(GameObject player)
+    {
+        player.transform.SetParent(null);
+        player.transform.localScale = Vector3.one;
     }
 
     private void Move()

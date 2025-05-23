@@ -8,6 +8,7 @@ public class ObjectMoveHandler : MonoBehaviour
     [Header("Path Settings")]
     [SerializeField] private List<Transform> waypoints;
 
+
     [SerializeField] private float moveDuration = 5f;
     [SerializeField] private Ease ease = Ease.InOutSine;
     [SerializeField] private bool loop = false;
