@@ -37,7 +37,6 @@ public class PlayerMovement : MonoBehaviour
         float   moveSpeed      = owner.StatManager.GetValue(StatType.MoveSpeed);
         Vector3 targetVelocity = new Vector3(move.x * moveSpeed, owner.Rigidbody.velocity.y, move.z * moveSpeed);
         Vector3 deltaPosition  = new Vector3(targetVelocity.x, 0f, targetVelocity.z) * Time.fixedDeltaTime;
-        Debug.Log(deltaPosition);
         owner.Rigidbody.MovePosition(owner.transform.localPosition + deltaPosition);
 
         // 이동 방향 회전

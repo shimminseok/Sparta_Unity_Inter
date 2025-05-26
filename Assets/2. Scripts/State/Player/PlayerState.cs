@@ -49,11 +49,11 @@ public class IdleState : IState<PlayerController>
 
 public class MoveState : IState<PlayerController>
 {
-    private readonly int MoveHash = Animator.StringToHash("IsMove");
+    private readonly int moveHash = Animator.StringToHash("IsMove");
 
     public void OnEnter(PlayerController owenr)
     {
-        owenr.Animator.SetBool(MoveHash, true);
+        owenr.Animator.SetBool(moveHash, true);
     }
 
     public void OnUpdate(PlayerController owner)
@@ -76,7 +76,7 @@ public class MoveState : IState<PlayerController>
 
     public void OnExit(PlayerController owenr)
     {
-        owenr.Animator.SetBool(MoveHash, false);
+        owenr.Animator.SetBool(moveHash, false);
     }
 
     public PlayerState? CheckTransition(PlayerController owner)
@@ -92,7 +92,7 @@ public class MoveState : IState<PlayerController>
 
 public class JumpState : IState<PlayerController>
 {
-    private readonly int JumpHash = Animator.StringToHash("Jump");
+    private readonly int jumpHash = Animator.StringToHash("Jump");
 
     public void OnEnter(PlayerController owner)
     {

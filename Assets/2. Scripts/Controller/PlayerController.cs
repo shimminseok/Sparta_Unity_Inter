@@ -15,7 +15,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float rotationSpeed;
     [SerializeField] private LayerMask groundLayer;
 
     public InputHandler        InputHandler        { get; private set; }
@@ -40,8 +40,9 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
     public bool  IsTouchingWall { get; private set; }
     public float RotationSpeed  => rotationSpeed;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         InputHandler = GetComponent<InputHandler>();
         Rigidbody = GetComponent<Rigidbody>();
         PlayerMovement = GetComponent<PlayerMovement>();
@@ -126,11 +127,11 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
                     currentInteractable.PrintUI();
                 }
 
-                if (InputHandler.InteractRequested)
-                {
-                    newInteractable.Execute(this);
-                    InputHandler.ResetInteractRequested();
-                }
+                if (!InputHandler.InteractRequested)
+                    return;
+
+                newInteractable.Execute(this);
+                InputHandler.ResetInteractRequested();
             }
             else
             {
@@ -149,7 +150,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
         {
             IsGrounded = true;
             //점프 발판 등 단발성 플랫폼
-            if (hit.collider.TryGetComponent<IObjectExecutable>(out var executable))
+            if (hit.collider.TryGetComponent<IObjectExecutable>(out IObjectExecutable executable))
             {
                 if (lastExecutable == executable)
                     return;
@@ -158,7 +159,7 @@ public class PlayerController : SceneOnlySingleton<PlayerController>, IDamageabl
                 lastExecutable = executable;
             }
             //움직이는 발판 등 지속성 플랫폼
-            else if (hit.collider.TryGetComponent<IPlatform>(out var platform))
+            else if (hit.collider.TryGetComponent<IPlatform>(out IPlatform platform))
             {
                 platform.OnUpdate();
 
